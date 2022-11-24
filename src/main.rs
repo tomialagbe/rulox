@@ -6,8 +6,14 @@ use std::{
     process,
 };
 
+use ast::ast_printer::AstPrinter;
+use ast::expr::Expr;
+use token::{Token, TokenLiteral, TokenType};
+
+mod ast;
 mod scanner;
 mod token;
+mod parser;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -22,6 +28,24 @@ fn main() {
     } else {
         let _r = rulox.run_prompt();
     }
+}
+
+fn print_ast() {
+    let expression = Expr::Binary {
+        left: Box::new(Expr::Unary {
+            operator: Token::new(TokenType::Minus, "-".to_string(), None, 1),
+            right: Box::new(Expr::Literal {
+                value: Some(TokenLiteral::from_number(123f64)),
+            }),
+        }),
+        right: Box::new(Expr::Grouping {
+            expression: Box::new(Expr::Literal {
+                value: Some(TokenLiteral::from_number(45.67)),
+            }),
+        }),
+        operator: Token::new(TokenType::Star, "*".to_string(), None, 1),
+    };
+    println!("Expression: \n{}", AstPrinter {}.print(expression));
 }
 
 struct RuLox {
